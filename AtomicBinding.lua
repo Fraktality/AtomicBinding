@@ -59,7 +59,7 @@ AtomicBinding.__index = AtomicBinding
 function AtomicBinding.new(tag, manifest, fn)
 	debug.profilebegin("AtomicBinding.new")
 	
-	local connections = {}
+	local connections = {} -- { Connection, ... }
 	local dtorMap = {} -- { [root] -> dtor }
 	local rootInstToRootNode = {} -- { [root] -> rootNode }
 	local rootInstToManifest = {} -- { [root] -> { [alias] -> instance } }
@@ -92,7 +92,7 @@ function AtomicBinding.new(tag, manifest, fn)
 		local resolvedManifest = {}
 		rootInstToManifest[root] = resolvedManifest
 		
-		debug.profilebegin("makeBoundTree")
+		debug.profilebegin("initializeBoundTree")
 		
 		local rootNode = {}
 		rootNode.alias = ROOT_ALIAS
@@ -129,7 +129,8 @@ function AtomicBinding.new(tag, manifest, fn)
 		
 		debug.profileend()
 		 
-		-- Recursively descend into the tree, resolving and processing each mock node
+		-- Recursively descend into the tree, resolving each node.
+		-- Nodes start out as empty and instance-less; the resolving process discovers instances to map to nodes.
 		local function processNode(node)
 			local instance = assert(node.instance)
 			
@@ -154,13 +155,13 @@ function AtomicBinding.new(tag, manifest, fn)
 				end
 				
 				local function processDeleteChild(childInstance)
-					-- Deletion
+					-- Instance deletion - Parent A detects that child B is being removed
 					--    1. A removes B from `children`
 					--    2. A traverses down from B,
 					--       i.  Disconnecting inputs
 					--       ii. Removing nodes from the resolved manifest
-					--    3. stopBoundFn is called, because we know the tree is no longer complete, or at least has to be refreshed
-					-- 	  4. We search A for a replacement for B, and call processAddChild on that replacement if it exists.
+					--    3. stopBoundFn is called because we know the tree is no longer complete, or at least has to be refreshed
+					-- 	  4. We search A for a replacement for B, and attempt to re-resolve using that replacement if it exists.
 					-- To support the above sanely, processAddChild needs to avoid resolving nodes that are already resolved.
 					
 					local childName = childInstance.Name
@@ -201,7 +202,7 @@ function AtomicBinding.new(tag, manifest, fn)
 			end
 		end
 		
-		debug.profilebegin("processBoundTree")
+		debug.profilebegin("resolveBoundTree")
 		processNode(rootNode)
 		debug.profileend()
 	end
