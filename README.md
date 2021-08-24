@@ -1,5 +1,6 @@
 # AtomicBinding
 Atomically bind Lua code to a tagged tree of instances.
+Uses [Destructor](https://github.com/Fraktality/Destructor).
 
 # API
 ## `AtomicBinding.new`
