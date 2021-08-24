@@ -12,10 +12,6 @@ local function parsePath(pathStr)
 	return pathArray
 end
 
-local function isNodeBound(node)
-	return node.instance ~= nil
-end
-
 local function isManifestResolved(resolvedManifest, manifestSizeTarget)
 	local manifestSize = 0
 	for _ in pairs(resolvedManifest) do
@@ -27,8 +23,8 @@ local function isManifestResolved(resolvedManifest, manifestSizeTarget)
 end
 
 local function unbindNodeDescend(node, resolvedManifest)
-	if not isNodeBound(node) then
-		return
+	if node.instance == nil then
+		return -- Do not try to unbind nodes that are already unbound
 	end
 
 	node.instance = nil
@@ -146,7 +142,7 @@ function AtomicBinding.new(tag, manifest, fn)
 				local function processAddChild(childInstance)
 					local childName = childInstance.Name
 					local childNode = children[childName]
-					if not childNode or isNodeBound(childNode) then
+					if not childNode or childNode.instance ~= nil then
 						return
 					end
 					
@@ -175,12 +171,10 @@ function AtomicBinding.new(tag, manifest, fn)
 						return -- A child was removed with the same name as a node instance, ignore
 					end
 					
-					assert(isNodeBound(childNode)) -- If this triggers, processAddChild missed resolving a node
-					
 					stopBoundFn(root) -- Happens before the tree is unbound so the manifest is still valid in the destructor.
 					unbindNodeDescend(childNode, resolvedManifest) -- Unbind the tree
 					
-					assert(not isNodeBound(childNode)) -- If this triggers, unbindNodeDescend failed
+					assert(childNode.instance == nil) -- If this triggers, unbindNodeDescend failed
 					
 					-- Search for a replacement
 					local replacementChild = instance:FindFirstChild(childName)
