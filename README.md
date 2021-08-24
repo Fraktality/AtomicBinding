@@ -32,6 +32,8 @@ return AtomicBinding.new("TestObject", { -- TestObject is a tag
 	b = "B", -- B is a child of TestObject
 	c = "B/C", -- C is a child of B
 }, function(objects)
+	-- Runs when a, b, and c all exist.
+	
 	local dtor = Destructor.new()
 	
 	print("Added")
