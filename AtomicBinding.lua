@@ -97,6 +97,7 @@ function AtomicBinding.new(tag, manifest, fn)
 			rootNode.children = {}
 			rootNode.connections = {}
 		end
+		rootInstToRootNode[root] = rootNode
 		
 		for alias, rawPath in pairs(manifest) do
 			local parsedPath = parsePath(rawPath)
