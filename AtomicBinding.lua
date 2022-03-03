@@ -88,7 +88,7 @@ function AtomicBinding.new(tag, manifest, fn)
 		local resolvedManifest = {}
 		rootInstToManifest[root] = resolvedManifest
 		
-		debug.profilebegin("initializeBoundTree")
+		debug.profilebegin("ParseTree")
 		
 		local rootNode = {}
 		rootNode.alias = ROOT_ALIAS
@@ -198,7 +198,7 @@ function AtomicBinding.new(tag, manifest, fn)
 			end
 		end
 		
-		debug.profilebegin("resolveBoundTree")
+		debug.profilebegin("ResolveTree")
 		processNode(rootNode)
 		debug.profileend()
 	end
