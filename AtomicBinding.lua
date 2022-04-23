@@ -222,6 +222,8 @@ function AtomicBinding.new(tag, manifest, fn)
 	
 	table.insert(connections, CollectionService:GetInstanceAddedSignal(tag):Connect(bindRoot))
 	table.insert(connections, CollectionService:GetInstanceRemovedSignal(tag):Connect(unbindRoot))
+	
+	debug.profileend() -- AtomicBinding.new
 
 	return setmetatable({
 		_dtorMap = dtorMap,
